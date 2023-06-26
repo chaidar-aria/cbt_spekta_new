@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ckeditor4": "^4.16.2",
+    "mysql": "^2.18.1"
+  }
+}

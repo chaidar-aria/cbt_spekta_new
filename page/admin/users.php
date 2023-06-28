@@ -29,30 +29,19 @@ include '../template/sidebar.php';
                             <th class="text-center">Nama Peserta</th>
                             <th class="text-center">Nomor Peserta Ujian</th>
                             <th class="text-center">Tanggal Ujian</th>
-                            <th class="text-center">Nilai Ujian</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                         </thead>
-                        <tfoot>
-                            <tr>
-                                <th class="text-center">#</th>
-                                <th class="text-center">Nama Peserta</th>
-                                <th class="text-center">Nomor Peserta Ujian</th>
-                                <th class="text-center">Tanggal Ujian</th>
-                                <th class="text-center">Nilai Ujian</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </tfoot>
                         <tbody>
                             <?php
                             $query = "SELECT * FROM tb_test 
-                            INNER JOIN tb_cbt_time ON tb_test.test_id = tb_cbt_time.test_id
-                            INNER JOIN tb_users_status ON tb_test.test_id = tb_users_status.test_id
-                            INNER JOIN tb_users_cbt ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt";
+                                INNER JOIN tb_cbt_time ON tb_test.test_id = tb_cbt_time.test_id
+                                INNER JOIN tb_users_status ON tb_test.test_id = tb_users_status.test_id
+                                INNER JOIN tb_users_cbt ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
+                                GROUP BY tb_users_cbt.id_users_cbt"; // Mengelompokkan data berdasarkan id_users_cbt
                             $result = $conn->query($query);
                             while ($row = $result->fetch_assoc()) {
                                 $no = 1;
-
                             ?>
                                 <tr>
                                     <td class="text-center text-muted"><?php echo $no++ ?></td>
@@ -65,13 +54,6 @@ include '../template/sidebar.php';
                                     <td class="text-center">
                                         <?php echo tgl_indo(date("Y-m-d", strtotime($row['users_cbt_date']))) ?>
                                     </td>
-                                    <td><?php
-                                        if ($row['exam_status'] == 'TERDAFTAR') {
-                                            echo "--";
-                                        } else {
-                                            echo $row['grade'];
-                                        }
-                                        ?></td>
                                     <td class="text-center">
                                         <a class="btn-shadow p-1 btn btn-primary btn-sm text-white" role="button" href="showusers?user_id=<?php echo $row['id_users_cbt']; ?>">Detail</a>
                                     </td>

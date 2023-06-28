@@ -96,7 +96,7 @@ if (isset($_POST["editSoal"])) {
     $sql = "SELECT * FROM tb_test WHERE cbt_status = '1'";
     $result = $conn->query($sql);
 
-    if ($result->num_rows >= 3) {
+    if ($result->num_rows >= 1) {
         header('location: ../page/admin/edit?tes_id=' . $test_id . '&mes=onlyone');
     } else {
         $query = "UPDATE tb_test SET cbt_status = '$cbt_status' WHERE test_id = '$test_id'";
@@ -203,12 +203,14 @@ if (isset($_POST["editSoal"])) {
 
     $sql4 = "UPDATE tb_users_cbt 
             INNER JOIN tb_users_status ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
-            SET grade = '$hasil',
-            work_status = '$work_status', 
+            SET work_status = '$work_status', 
             exam_status = '$exam_status' 
             WHERE tb_users_cbt.id_users_cbt = '$user_id'";
     if ($conn->query($sql4) === TRUE) {
-        header('location: ../page/finish/?tes_id=' . $test_id . '&mes=finish');
+        $sql5 = "INSERT INTO tb_cbt_grade (test_id, id_users_cbt, grade) VALUES ('$test_id','$user_id','$hasil')";
+        if ($conn->query($sql5)) {
+            header('location: ../page/finish/?tes_id=' . $test_id . '&mes=finish');
+        }
     } else {
         echo 'error' . $conn->error;
     }
@@ -229,5 +231,17 @@ if (isset($_POST["editSoal"])) {
         header('location: ../page/finish/?tes_id=' . $test_id . '&mes=timeout');
     } else {
         echo 'error' . $conn->error;
+    }
+} else if (isset($_POST['testId']) && isset($_POST['userId'])) {
+    $testId = $_POST['testId'];
+    $userId = $_POST['userId'];
+
+    // Lakukan operasi update tabel di database menggunakan $testId dan $userId
+    $query = "INSERT INTO tb_users_status (test_id, id_users_cbt) VALUES ('$testId','$userId')";
+    if ($conn->query($query) === TRUE) {
+        // Berikan respons ke permintaan AJAX
+        http_response_code(200); // Berhasil
+    } else {
+        http_response_code(400); // Berhasil
     }
 }

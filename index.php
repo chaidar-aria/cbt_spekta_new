@@ -28,7 +28,7 @@ if ($_SESSION) {
     <!-- Style -->
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <title>CBT SPEKTA | Sistem Pencatatan Keuangan dan Keanggotaan Pramuka</title>
+    <title>CBT SPEKTA</title>
 </head>
 
 <body>

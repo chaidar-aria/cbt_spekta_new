@@ -20,6 +20,7 @@ $query = "SELECT * FROM tb_users_cbt
             INNER JOIN tb_users_status ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
             INNER JOIN tb_test ON tb_users_status.test_id = tb_test.test_id
             INNER JOIN tb_cbt_grade ON tb_users_cbt.id_users_cbt = tb_cbt_grade.id_users_cbt
+            INNER JOIN tb_cbt_users_date ON tb_cbt_users_date.id_users_cbt = tb_users_cbt.id_users_cbt
             WHERE tb_users_cbt.id_users_cbt = '$user_id'";
 $result = $conn->query($query);
 
@@ -68,7 +69,7 @@ while ($row = $result->fetch_assoc()) {
                                     <label class="col-sm-3 col-form-label text-md-right">Tanggal Ujian</label>
                                     <div class="col-sm-8">
                                         <p class="mt-2 tx-medium">
-                                            <?php echo tgl_indo($row['users_cbt_date']) ?>
+                                            <td><?php echo tgl_indo(date("Y-m-d", strtotime($row['users_cbt_date']))) ?></td>
                                         </p>
                                     </div>
                                 </div>
@@ -138,9 +139,9 @@ while ($row = $result->fetch_assoc()) {
                                                 <?php
                                                 echo $row3['ans1'];
                                                 if ($trueans == $userans) {
-                                                    echo 'JAWABAN PESERTA SESUAI KUNCI';
+                                                    echo '<br>JAWABAN PESERTA SESUAI KUNCI';
                                                 } else {
-                                                    echo 'KUNCI JAWABAN';
+                                                    echo '<br>KUNCI JAWABAN';
                                                 }
                                                 ?>
                                             </div>
@@ -170,9 +171,9 @@ while ($row = $result->fetch_assoc()) {
                                                 <?php
                                                 echo $row3['ans2'];
                                                 if ($trueans == $userans) {
-                                                    echo 'JAWABAN PESERTA SESUAI KUNCI';
+                                                    echo '<br>JAWABAN PESERTA SESUAI KUNCI';
                                                 } else {
-                                                    echo 'KUNCI JAWABAN';
+                                                    echo '<br>KUNCI JAWABAN';
                                                 }
                                                 ?>
                                             </div>
@@ -197,9 +198,9 @@ while ($row = $result->fetch_assoc()) {
                                                 <?php
                                                 echo $row3['ans3'];
                                                 if ($trueans == $userans) {
-                                                    echo 'JAWABAN PESERTA SESUAI KUNCI';
+                                                    echo '<br>JAWABAN PESERTA SESUAI KUNCI';
                                                 } else {
-                                                    echo 'KUNCI JAWABAN';
+                                                    echo '<br>KUNCI JAWABAN';
                                                 }
                                                 ?>
                                             </div>
@@ -224,9 +225,9 @@ while ($row = $result->fetch_assoc()) {
                                                 <?php
                                                 echo $row3['ans4'];
                                                 if ($trueans == $userans) {
-                                                    echo 'JAWABAN PESERTA SESUAI KUNCI';
+                                                    echo '<br>JAWABAN PESERTA SESUAI KUNCI';
                                                 } else {
-                                                    echo 'KUNCI JAWABAN';
+                                                    echo '<br>KUNCI JAWABAN';
                                                 }
                                                 ?>
                                             </div>
@@ -251,9 +252,9 @@ while ($row = $result->fetch_assoc()) {
                                                 <?php
                                                 echo $row3['ans5'];
                                                 if ($trueans == $userans) {
-                                                    echo 'JAWABAN PESERTA SESUAI KUNCI';
+                                                    echo '<br>JAWABAN PESERTA SESUAI KUNCI';
                                                 } else {
-                                                    echo 'KUNCI JAWABAN';
+                                                    echo '<br>KUNCI JAWABAN';
                                                 }
                                                 ?>
                                             </div>

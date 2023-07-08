@@ -13,6 +13,4 @@ $urlLjk = $actual_link . '/page/ljk/';
 $urlFinish = $actual_link . '/page/finish/';
 $urlTemplate = $actual_link . '/page/template/';
 $urlConfirm = $actual_link . '/page/confirm/';
-
-$urlWebsite = 'http://localhost/pramuka/';
-$urlSpekta = 'http://localhost/ui_spekta/';
+$urlFile = $actual_link . '/file/excel/';

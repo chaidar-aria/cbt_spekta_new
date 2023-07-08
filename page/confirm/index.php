@@ -20,6 +20,7 @@ $query = "SELECT * FROM tb_users_cbt
           INNER JOIN tb_users_status ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
           INNER JOIN tb_test ON tb_test.test_id = tb_users_status.test_id
           INNER JOIN tb_users_utilities ON tb_users_utilities.id_users_cbt = tb_users_cbt.id_users_cbt
+          INNER JOIN tb_cbt_users_date ON tb_cbt_users_date.id_users_cbt = tb_users_cbt.id_users_cbt
           WHERE tb_users_cbt.username = '$username'";
 $result = $conn->query($query);
 
@@ -103,17 +104,19 @@ while ($row = $result->fetch_assoc()) {
                                             WHERE tb_test.test_id = '$test_id'";
                                             $result2 = $conn->query($query2);
                                             while ($row2 = $result2->fetch_assoc()) {
-                                                if ($row['work_status'] == '1') {
-                                                    header('location: ../finish/?tes_id=' . $test_id . '&mes=finish');
-                                                }
-                                            ?>
+                                                if ($row['work_status'] == '1') { ?>
+                                                    <script>
+                                                        window.location.href = "../finish/?tes_id=" + <?php echo $test_id ?> + "&mes=finish";
+                                                    </script>
+                                                <?php }
+                                                ?>
                                                 <tr>
                                                     <th>Nama Ujian</th>
                                                     <td><?php echo $row2['test_name'] ?></td>
                                                 </tr>
                                                 <tr>
                                                     <th>Tanggal Ujian</th>
-                                                    <td><?php echo tgl_indo(date("Y-m-d", strtotime($row2['cbt_date_start']))) . ' ~ ' . tgl_indo(date("Y-m-d", strtotime($row2['cbt_date_end']))); ?>
+                                                    <td><?php echo tgl_indo(date("Y-m-d", strtotime($row['users_cbt_date']))) ?></td>
                                                 </tr>
                                                 <tr>
                                                     <th>Durasi Ujian</th>

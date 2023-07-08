@@ -136,9 +136,9 @@ while ($row = $result->fetch_assoc()) {
                                     </div>
                                     <div class="image text-center">
                                         <?php if ($row['foto_users'] == NULL) { ?>
-                                            <img src="<?php echo $urlSpekta . 'assets/img/logo SS.png' ?>" alt="img user" width="150">
+                                            <img src="<?php echo $urlAsset . 'images/bg_1.jpg' ?>" alt="img user" width="150">
                                         <?php } else { ?>
-                                            <img src="<?php echo $urlSpekta . 'assets/img/user/' . $row['foto_users']; ?>" alt="img user" width="150">
+                                            <img src="<?php echo $urlAsset . 'images/user/' . $row['foto_users']; ?>" alt="img user" width="150">
                                         <?php } ?>
                                     </div>
                                     <div class="card-body">
@@ -225,7 +225,7 @@ while ($row = $result->fetch_assoc()) {
                                                         <div class="d-flex justify-content-around">
                                                             <?php if ($row3['que_id'] == '1') { ?>
                                                                 <div class="button text-center mt-3">
-                                                                    <button class="btn-shadow p-1 btn btn-danger btn-md text-white" disabled>SEBELUMNYA</button>
+                                                                    <button class="btn-shadow p-1 btn btn-danger btn-md text-white" role="button" type="submit" name="prevque" id="prevque" disabled>SEBELUMNYA</button>
                                                                 </div>
                                                             <?php } else { ?>
                                                                 <div class="button text-center mt-3">
@@ -274,19 +274,22 @@ while ($row = $result->fetch_assoc()) {
                     </div>
                 </div>
                 <?php
-                include '../template/script.php'; ?>
+                include '../template/script.php';
+                ?>
 
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.countdown/2.2.0/jquery.countdown.min.js"></script>
                 <script src="<?php echo $urlAsset ?>scripts/jquery.idle.js"></script>
 
                 <script>
                     function mouseOut() {
+
                         Swal.fire({
                             icon: 'warning',
                             title: 'PERINGATAN',
                             text: 'Anda meninggalkan ujian \n segala pelanggaran akan dilaporkan',
-                        })
+                        });
                     }
+
                     $(document).ready(function() {
                         /** Membuat Waktu Mulai Hitung Mundur Dengan 
                          * var detik;
@@ -385,7 +388,7 @@ while ($row = $result->fetch_assoc()) {
                                     }).then(function() {
                                         window.location.href =
                                             "<?php echo $urlConfig . 'soal?endExam&tes_id=' . $_GET['tes_id'] . '&username=' . $username .  "&user_id=" .  $row['id_users_cbt']  ?>";
-                                    })
+                                    });
                                 }
                             });
                     }

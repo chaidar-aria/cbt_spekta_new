@@ -17,7 +17,6 @@ $user_id = $_GET['user_id'];
 $query = "SELECT * FROM tb_users_cbt
             INNER JOIN tb_users_utilities ON tb_users_cbt.id_users_cbt = tb_users_utilities.id_users_cbt
             INNER JOIN tb_users_status ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
-            INNER JOIN tb_test ON tb_users_status.test_id = tb_test.test_id
             WHERE tb_users_cbt.id_users_cbt = '$user_id'";
 $result = $conn->query($query);
 
@@ -114,6 +113,7 @@ while ($row = $result->fetch_assoc()) {
                                 INNER JOIN tb_cbt_time ON tb_test.test_id = tb_cbt_time.test_id
                                 INNER JOIN tb_users_status ON tb_test.test_id = tb_users_status.test_id
                                 INNER JOIN tb_users_cbt ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
+                                INNER JOIN tb_cbt_users_date ON tb_cbt_users_date.id_users_cbt = tb_users_cbt.id_users_cbt
                                 LEFT JOIN tb_cbt_grade ON tb_users_cbt.id_users_cbt = tb_cbt_grade.id_users_cbt AND tb_cbt_grade.test_id = tb_test.test_id
                                 WHERE tb_users_cbt.id_users_cbt = '$user_id'";
                             $result2 = $conn->query($query2);
@@ -123,8 +123,7 @@ while ($row = $result->fetch_assoc()) {
                             ?>
                                 <td><?php echo $no++ ?></td>
                                 <td><?php echo $row2['test_name'] ?></td>
-                                <td><?php echo tgl_indo(date("Y-m-d", strtotime($row2['cbt_date_start']))) . ' ~ ' . tgl_indo(date("Y-m-d", strtotime($row2['cbt_date_end']))); ?>
-                                </td>
+                                <td><?php echo tgl_indo(date("Y-m-d", strtotime($row2['users_cbt_date']))) ?></td>
                                 <td><?php echo $row2['cbt_timer'] . ' menit'; ?></td>
                                 <td class="text-center">
                                     <?php if ($examStatus == 'TERDAFTAR') { ?>
@@ -137,7 +136,7 @@ while ($row = $result->fetch_assoc()) {
                                         <span class="badge bg-danger text-white">Pelanggaran</span>
                                     <?php } ?>
                                 </td>
-                                <td><?php echo $grade ? $grade : "Belum ada nilai"; ?></td>
+                                <td><?php echo ($grade !== NULL && $grade !== 0) ? $grade : "Belum ada nilai"; ?></td>
                                 <td>
                                     <?php if ($examStatus == 'TERDAFTAR') { ?>
                                         <a class="btn-shadow p-1 btn btn-primary btn-sm text-white" role="button" disabled onclick="belumSelesai()" id="belumSelesai">DETAIL</a>
@@ -145,8 +144,8 @@ while ($row = $result->fetch_assoc()) {
                                         <a class="btn-shadow p-1 btn btn-primary btn-sm text-white" role="button" href="showexam?<?php echo "user_id=" . $_GET['user_id'] . "&tes_id=" . $row2['test_id']; ?>">DETAIL</a>
                                     <?php } ?>
                                 </td>
+                            <?php } ?>
                         </tbody>
-                    <?php } ?>
                     </table>
                 </div>
             </div>
@@ -294,6 +293,51 @@ include '../template/script.php'; ?>
             };
             xhr.send('testId=' + encodeURIComponent(testId) + '&userId=' + encodeURIComponent(userId));
         }
+    });
+
+    $(document).ready(function() {
+        // Add a click event listener to the button
+        $("#btnPilihTanggal").on("click", function() {
+            // Show the SweetAlert confirmation
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin mengacak tanggal?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ok',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If user clicks "Ok", send the data to PHP using AJAX
+                    $.ajax({
+                        type: 'POST',
+                        url: '../../config/soal.php', // Replace 'process.php' with your PHP file that handles the database insertion
+                        data: {
+                            action: 'acak_tanggal'
+                        }, // You can send any data you need here
+                        success: function(response) {
+                            // Handle the response from the PHP file
+                            if (response === 'success') {
+                                // Show the success SweetAlert
+                                Swal.fire('Berhasil', 'Data telah dimasukkan ke database.', 'success')
+                                    .then(() => {
+                                        // Auto refresh the page after the success alert
+                                        location.reload();
+                                    });
+                            } else {
+                                // Show an error SweetAlert
+                                Swal.fire('Gagal', 'Terjadi kesalahan saat memproses data.', 'error');
+                            }
+                        },
+                        error: function() {
+                            // Show an error SweetAlert if AJAX call fails
+                            Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                        }
+                    });
+                }
+            });
+        });
     });
 </script>
 

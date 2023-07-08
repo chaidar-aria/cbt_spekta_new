@@ -17,6 +17,7 @@ $query = "SELECT * FROM tb_users_cbt
           INNER JOIN tb_users_status ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
           INNER JOIN tb_test ON tb_test.test_id = tb_users_status.test_id
           INNER JOIN tb_users_utilities ON tb_users_utilities.id_users_cbt = tb_users_cbt.id_users_cbt
+          INNER JOIN tb_cbt_users_date ON tb_cbt_users_date.id_users_cbt = tb_users_cbt.id_users_cbt
           WHERE tb_users_cbt.username = '$username'";
 $result = $conn->query($query);
 

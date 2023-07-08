@@ -28,18 +28,21 @@ include '../template/sidebar.php';
                             <th class="text-center">#</th>
                             <th class="text-center">Nama Peserta</th>
                             <th class="text-center">Nomor Peserta Ujian</th>
-                            <th class="text-center">Tanggal Ujian</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                         </thead>
                         <tbody>
                             <?php
-                            $query = "SELECT * FROM tb_test 
-                                INNER JOIN tb_cbt_time ON tb_test.test_id = tb_cbt_time.test_id
-                                INNER JOIN tb_users_status ON tb_test.test_id = tb_users_status.test_id
-                                INNER JOIN tb_users_cbt ON tb_users_cbt.id_users_cbt = tb_users_status.id_users_cbt
-                                GROUP BY tb_users_cbt.id_users_cbt"; // Mengelompokkan data berdasarkan id_users_cbt
+                            $query = "SELECT tb_users_cbt.*, tb_level.*
+                                    FROM tb_users_cbt 
+                                    INNER JOIN tb_level ON tb_level.id_users_cbt = tb_users_cbt.id_users_cbt
+                                    INNER JOIN tb_level_name ON tb_level.id_level_name = tb_level_name.id_level_name
+                                    WHERE tb_level_name.level_name NOT IN ('SUPERADMIN', 'ADMIN')
+                                    GROUP BY tb_users_cbt.id_users_cbt, tb_level.id_level";
+
                             $result = $conn->query($query);
+
+
                             while ($row = $result->fetch_assoc()) {
                                 $no = 1;
                             ?>
@@ -52,15 +55,16 @@ include '../template/sidebar.php';
                                         <div class="widget-heading"><?php echo $row['username'] ?></div>
                                     </td>
                                     <td class="text-center">
-                                        <?php echo tgl_indo(date("Y-m-d", strtotime($row['users_cbt_date']))) ?>
-                                    </td>
-                                    <td class="text-center">
                                         <a class="btn-shadow p-1 btn btn-primary btn-sm text-white" role="button" href="showusers?user_id=<?php echo $row['id_users_cbt']; ?>">Detail</a>
                                     </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
                     </table>
+                </div>
+                <div class="d-block text-center card-footer">
+                    <a href="tambahpeserta" class="btn-wide btn btn-success">TAMBAH DATA PESERTA</a>
+                    <a href="unggahpeserta" class="btn-wide btn btn-success">UNGGAH DATA PESERTA</a>
                 </div>
             </div>
         </div>

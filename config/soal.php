@@ -1,6 +1,11 @@
 <?php
 
 include 'conn.php';
+include '../vendor/autoload.php';
+
+// Menggunakan PHPSpreadsheet untuk membaca file Excel
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 if (isset($_POST["editSoal"])) {
     $test_id = $_POST['test_id'];
@@ -236,12 +241,215 @@ if (isset($_POST["editSoal"])) {
     $testId = $_POST['testId'];
     $userId = $_POST['userId'];
 
-    // Lakukan operasi update tabel di database menggunakan $testId dan $userId
-    $query = "INSERT INTO tb_users_status (test_id, id_users_cbt) VALUES ('$testId','$userId')";
-    if ($conn->query($query) === TRUE) {
-        // Berikan respons ke permintaan AJAX
-        http_response_code(200); // Berhasil
+    // Validate $testId and $userId if needed.
+
+    $query = "SELECT * FROM tb_test WHERE test_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $testId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $cbt_date_start = $row['cbt_date_start'];
+        $cbt_date_end = $row['cbt_date_end'];
+
+        // Convert date strings to DateTime objects
+        $cbt_date_start = new DateTime($cbt_date_start);
+        $cbt_date_end = new DateTime($cbt_date_end);
+
+        // Get the timestamps of the start and end dates
+        $start_timestamp = strtotime($cbt_date_start->format('Y-m-d'));
+        $end_timestamp = strtotime($cbt_date_end->format('Y-m-d'));
+
+        // Generate a random timestamp within the date range
+        $random_timestamp = rand($start_timestamp, $end_timestamp);
+
+        // Convert the random timestamp back to a date format
+        $random_date = date('Y-m-d', $random_timestamp);
+
+        // Now, $random_date contains the randomly generated date within the date range
+
+        // Insert the data into tb_cbt_users_date using prepared statement
+        $insert_query = "UPDATE tb_cbt_users_date SET test_id = ?, users_cbt_date = ? WHERE id_users_cbt = ?";
+        $stmt = $conn->prepare($insert_query);
+        $stmt->bind_param("iss", $testId, $random_date, $userId);
+
+        if ($stmt->execute()) {
+            $insert_query = "UPDATE tb_users_status SET test_id = ? WHERE id_users_cbt = ?";
+            $stmt = $conn->prepare($insert_query);
+            $stmt->bind_param("is", $testId, $userId);
+            if ($stmt->execute()) {
+                http_response_code(200); // Success
+            } else {
+                http_response_code(500); // Internal Server Error
+            }
+        } else {
+            http_response_code(500); // Internal Server Error
+        }
     } else {
-        http_response_code(400); // Berhasil
+        http_response_code(400); // Bad Request
     }
+} elseif (isset($_POST['tambahPeserta'])) {
+    $username = $_POST['username'];
+    $name = strtoupper($_POST['name']);
+    $birthdate = $_POST['birthDate'];
+    $birthplace = strtoupper($_POST['birthPlace']);
+    $jenisKelamin = $_POST['jenisKelamin'];
+
+    $password = $username;
+
+    // Cek apakah data sudah ada di database
+    $existingDataQuery = "SELECT * FROM tb_users_cbt WHERE username = '$username'";
+    $existingDataResult = $conn->query($existingDataQuery);
+
+    if ($existingDataResult->num_rows == 0) {
+        // Data belum ada, lakukan operasi INSERT
+        $query = "INSERT INTO tb_users_cbt (username, password, name, birth_place, birth_date, gender) VALUES ('$username', '$password','$name','$birthplace','$birthdate','$jenisKelamin')";
+
+        if ($conn->query($query)) {
+            $sql = mysqli_query($conn, "SELECT * FROM tb_users_cbt WHERE username = '$username'");
+            while ($d = mysqli_fetch_array($sql)) {
+                $idcbt = $d['id_users_cbt'];
+                $lv = "INSERT INTO tb_level (id_users_cbt) VALUES ('$idcbt');";
+                if ($conn->query($lv) === TRUE) {
+                    $usrdate = "INSERT INTO tb_cbt_users_date (id_users_cbt) VALUES ('$idcbt')";
+                    if ($conn->query($usrdate) === TRUE) {
+                        $usrsts = "INSERT INTO tb_users_status (id_users_cbt) VALUES ('$idcbt')";
+                        if ($conn->query($usrsts) === TRUE) {
+                            $usrutlts = "INSERT INTO tb_users_utilities (id_users_cbt) VALUES ('$idcbt')";
+                            if ($conn->query($usrutlts) === TRUE) {
+                                header('location: ../page/admin/users?mes=cracc');
+                            } else {
+                                header('location: ../page/admin/users?mes=gagal');
+                            }
+                        } else {
+                            header('location: ../page/admin/users?mes=gagal');
+                        }
+                    } else {
+                        header('location: ../page/admin/users?mes=gagal');
+                    }
+                } else {
+                    header('location: ../page/admin/users?mes=gagal');
+                }
+            }
+        } else {
+            echo "Gagal menyimpan data: " . $conn->error;
+        }
+    } else {
+        // Data sudah ada di database, berikan tindakan yang sesuai
+        header('location: ../page/admin/users?mes=duplicate');
+    }
+} else if (isset($_POST['action']) && $_POST['action'] === 'acak_tanggal') {
+    // Perform the database insertion here
+    // Replace the following line with your database insertion logic
+    // For example:
+    // $result = insert_data_to_database();
+
+    // Assuming the insertion is successful, return 'success'
+    // If there is an error during insertion, return 'error'
+    $result = 'success'; // Change this based on your database operation
+
+    echo $result;
+} else if (isset($_POST['unggahPeserta'])) {
+    $file = $_FILES['filePeserta']['tmp_name'];
+    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($file);
+    $objReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+    $spreadsheet = $objReader->load($file);
+    $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+    // Melakukan impor data ke database
+    foreach ($sheetData as $row) {
+        $username = $row['A']; // Ganti 'A' dengan nama kolom di Excel (misalnya 'A', 'B', 'C', dst.)
+        $name = $row['B'];
+        $birthPlace = $row['C'];
+        $birthDate = $row['D'];
+        $gender = $row['E'];
+        $password = $username;
+
+        // Mengubah Format Tanggal
+        $tanggal_lahir = date_create_from_format('d/m/Y', $birthDate); // Konversi format tanggal
+        $tanggal_lahir_mysql = $tanggal_lahir ? date_format($tanggal_lahir, 'Y-m-d') : null; // Format sesuai dengan format di MySQL (YYYY-MM-DD)
+
+        // Cek apakah data sudah ada di database
+        $existingDataQuery = "SELECT * FROM tb_users_cbt WHERE username = '$username'";
+        $existingDataResult = $conn->query($existingDataQuery);
+
+        if ($existingDataResult->num_rows == 0) {
+
+            // Query untuk menyimpan data ke tabel MySQL
+            $sql = "INSERT INTO tb_users_cbt (username, password, name, birth_place, birth_date, gender) VALUES ('$username', '$password', '$name','$birthPlace','$tanggal_lahir_mysql','$gender')";
+            $result = $conn->query($sql);
+
+            if ($result) {
+                $sql = mysqli_query($conn, "SELECT * FROM tb_users_cbt WHERE username = '$username'");
+                while ($d = mysqli_fetch_array($sql)) {
+                    $idcbt = $d['id_users_cbt'];
+                    $lv = "INSERT INTO tb_level (id_users_cbt) VALUES ('$idcbt');";
+                    if ($conn->query($lv) === TRUE) {
+                        $usrdate = "INSERT INTO tb_cbt_users_date (id_users_cbt) VALUES ('$idcbt')";
+                        if ($conn->query($usrdate) === TRUE) {
+                            $usrsts = "INSERT INTO tb_users_status (id_users_cbt) VALUES ('$idcbt')";
+                            if ($conn->query($usrsts) === TRUE) {
+                                $usrutlts = "INSERT INTO tb_users_utilities (id_users_cbt) VALUES ('$idcbt')";
+                                if ($conn->query($usrutlts) === TRUE) {
+                                    header('location: ../page/admin/users?mes=cracc');
+                                } else {
+                                    header('location: ../page/admin/users?mes=gagal');
+                                    // echo 'errro1' . $conn->connect_error;
+                                }
+                            } else {
+                                header('location: ../page/admin/users?mes=gagal');
+                                // echo 'errro1' . $conn->connect_error;
+                            }
+                        } else {
+                            header('location: ../page/admin/users?mes=gagal');
+                            // echo 'errro1' . $conn->connect_error;
+                        }
+                    } else {
+                        header('location: ../page/admin/users?mes=gagal');
+                        // echo 'errro1' . $conn->connect_error;
+                    }
+                }
+            } else {
+                echo "Gagal menyimpan data: " . $conn->error;
+            }
+        } else {
+            header('location: ../page/admin/users?mes=duplicate');
+            continue;
+        }
+    }
+} elseif (isset($_POST['unggahSoal'])) {
+    $tes_id = $_POST['test_id'];
+    $file = $_FILES['fileSoal']['tmp_name'];
+    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($file);
+    $objReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+    $spreadsheet = $objReader->load($file);
+    $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+    // Melakukan impor data ke database
+    foreach ($sheetData as $row) {
+        $soal = $row['A']; // Ganti 'A' dengan nama kolom di Excel (misalnya 'A', 'B', 'C', dst.)
+        $pilA = $row['B'];
+        $pilB = $row['C'];
+        $pilC = $row['D'];
+        $pilD = $row['E'];
+        $pilE = $row['F'];
+        $true = $row['G'];
+        $nilai = $row['H'];
+
+        // Query untuk menyimpan data ke tabel MySQL
+        $sql = "INSERT INTO tb_question (test_id, que_desc, ans1, ans2, ans3, ans4, ans5, true_ans, que_score) VALUES ('$tes_id', '$soal', '$pilA','$pilB','$pilC','$pilD','$pilE','$true','$nilai')";
+        $result = $conn->query($sql);
+
+        if ($result) {
+            header('location: ../page/admin/edit?tes_id=' . $tes_id . '&mes=berhasilTambah');
+        } else {
+            header('location: ../page/admin/edit?tes_id=' . $tes_id . '&mes=gagal');
+            // echo 'errro1' . $conn->connect_error;
+        }
+    }
+    // Periksa apakah permintaan berasal dari fungsi mouseOut()
+} else {
+    echo "Permintaan tidak valid.";
 }

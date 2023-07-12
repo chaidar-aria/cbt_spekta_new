@@ -66,7 +66,7 @@ if (isset($_POST['nextque'])) {
             $sql3 = "INSERT INTO tb_useranswer (test_id, id_users_cbt, que_id, user_answer) VALUES ('$test_id','$id_users_cbt','$que_id','$answer')";
             if ($conn->query($sql3) === TRUE) {
                 $pages6 = $page - 1;
-                header('location: ../page/ljk/?tes_id=' . $test_id . '&pages=' . $page6);
+                header('location: ../page/ljk/?tes_id=' . $test_id . '&page=' . $pages6);
             } else {
                 echo 'error1' . $conn->connect_error;
             }

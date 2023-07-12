@@ -82,7 +82,7 @@ while ($row = $result->fetch_assoc()) {
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta http-equiv="Content-Language" content="en">
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title>CBT SPEKTA | Sistem Pencatatan Keuangan dan Keanggotaan Pramuka</title>
+                <title>CBT SPEKTA</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
                 <meta name="description" content="This is an example dashboard created using build-in elements and components.">
                 <meta name="msapplication-tap-highlight" content="no">
@@ -98,14 +98,34 @@ while ($row = $result->fetch_assoc()) {
     -->
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
                 <link href="<?php echo $urlAsset ?>css/main.css" rel="stylesheet">
+                <!-- Tambahkan CSS untuk mengatur video webcam -->
+                <style>
+                    .video-container {
+                        position: relative;
+                        width: 100%;
+                        height: 0;
+                        padding-top: 56.25%;
+                        /* Untuk mengatur aspek rasio video (16:9) */
+                    }
+
+                    .video-frame {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+                </style>
+
             </head>
 
             <body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" onmouseleave="mouseOut()">
 
                 <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
                     <div class="app-header header-shadow">
-                        <div class="app-header__logo">
-                            <img src="<?php echo $urlAsset ?>images/logo.png" alt="logo" width="150">
+                        <!-- Tempatkan video webcam di tengah atas halaman -->
+                        <div class="video-container">
+                            <video id="user-webcam" class="video-frame" autoplay></video>
                         </div>
                         <div class="app-header__content">
                             <div class="app-header-right">
@@ -126,6 +146,7 @@ while ($row = $result->fetch_assoc()) {
                             </div>
                         </div>
                     </div>
+
                     <div class="app-main">
                         <div class="app-sidebar sidebar-shadow">
                             <div class="scrollbar-sidebar">
@@ -136,9 +157,9 @@ while ($row = $result->fetch_assoc()) {
                                     </div>
                                     <div class="image text-center">
                                         <?php if ($row['foto_users'] == NULL) { ?>
-                                            <img src="<?php echo $urlSpekta . 'assets/img/logo SS.png' ?>" alt="img user" width="150">
+                                            <img src="<?php echo $urlAsset . 'images/bg_1.jpg' ?>" alt="img user" width="150">
                                         <?php } else { ?>
-                                            <img src="<?php echo $urlSpekta . 'assets/img/user/' . $row['foto_users']; ?>" alt="img user" width="150">
+                                            <img src="<?php echo $urlAsset . 'images/user/' . $row['foto_users']; ?>" alt="img user" width="150">
                                         <?php } ?>
                                     </div>
                                     <div class="card-body">
@@ -225,7 +246,7 @@ while ($row = $result->fetch_assoc()) {
                                                         <div class="d-flex justify-content-around">
                                                             <?php if ($row3['que_id'] == '1') { ?>
                                                                 <div class="button text-center mt-3">
-                                                                    <button class="btn-shadow p-1 btn btn-danger btn-md text-white" disabled>SEBELUMNYA</button>
+                                                                    <button class="btn-shadow p-1 btn btn-danger btn-md text-white" role="button" type="submit" name="prevque" id="prevque" disabled>SEBELUMNYA</button>
                                                                 </div>
                                                             <?php } else { ?>
                                                                 <div class="button text-center mt-3">
@@ -274,19 +295,22 @@ while ($row = $result->fetch_assoc()) {
                     </div>
                 </div>
                 <?php
-                include '../template/script.php'; ?>
+                include '../template/script.php';
+                ?>
 
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.countdown/2.2.0/jquery.countdown.min.js"></script>
                 <script src="<?php echo $urlAsset ?>scripts/jquery.idle.js"></script>
 
                 <script>
                     function mouseOut() {
+
                         Swal.fire({
                             icon: 'warning',
                             title: 'PERINGATAN',
                             text: 'Anda meninggalkan ujian \n segala pelanggaran akan dilaporkan',
-                        })
+                        });
                     }
+
                     $(document).ready(function() {
                         /** Membuat Waktu Mulai Hitung Mundur Dengan 
                          * var detik;
@@ -385,7 +409,7 @@ while ($row = $result->fetch_assoc()) {
                                     }).then(function() {
                                         window.location.href =
                                             "<?php echo $urlConfig . 'soal?endExam&tes_id=' . $_GET['tes_id'] . '&username=' . $username .  "&user_id=" .  $row['id_users_cbt']  ?>";
-                                    })
+                                    });
                                 }
                             });
                     }

@@ -82,7 +82,7 @@ while ($row = $result->fetch_assoc()) {
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta http-equiv="Content-Language" content="en">
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title>CBT SPEKTA | Sistem Pencatatan Keuangan dan Keanggotaan Pramuka</title>
+                <title>CBT SPEKTA</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
                 <meta name="description" content="This is an example dashboard created using build-in elements and components.">
                 <meta name="msapplication-tap-highlight" content="no">
@@ -98,14 +98,34 @@ while ($row = $result->fetch_assoc()) {
     -->
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
                 <link href="<?php echo $urlAsset ?>css/main.css" rel="stylesheet">
+                <!-- Tambahkan CSS untuk mengatur video webcam -->
+                <style>
+                    .video-container {
+                        position: relative;
+                        width: 100%;
+                        height: 0;
+                        padding-top: 56.25%;
+                        /* Untuk mengatur aspek rasio video (16:9) */
+                    }
+
+                    .video-frame {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+                </style>
+
             </head>
 
             <body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" onmouseleave="mouseOut()">
 
                 <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
                     <div class="app-header header-shadow">
-                        <div class="app-header__logo">
-                            <img src="<?php echo $urlAsset ?>images/logo.png" alt="logo" width="150">
+                        <!-- Tempatkan video webcam di tengah atas halaman -->
+                        <div class="video-container">
+                            <video id="user-webcam" class="video-frame" autoplay></video>
                         </div>
                         <div class="app-header__content">
                             <div class="app-header-right">
@@ -126,6 +146,7 @@ while ($row = $result->fetch_assoc()) {
                             </div>
                         </div>
                     </div>
+
                     <div class="app-main">
                         <div class="app-sidebar sidebar-shadow">
                             <div class="scrollbar-sidebar">
